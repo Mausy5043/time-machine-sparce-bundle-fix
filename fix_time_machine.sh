@@ -8,8 +8,8 @@
 
 usage ()
 {
-  echo "usage: $0 PATH_TO_BUNDLE"
-  exit
+	echo "usage: $0 PATH_TO_BUNDLE"
+	exit
 }
 
 # a function to extract the dev disk from the hdiutil output
@@ -19,13 +19,11 @@ extract_dev_disk ()
 	
 	# split the hdiutil output by spaces (" ") into an array.
 	DISKS_ARRAY=(${HDIUTIL_OUTPUT//" "/ })
-	for ((i = 0 ; i < ${#DISKS_ARRAY[@]}; i++));
-	do
+	for ((i = 0 ; i < ${#DISKS_ARRAY[@]}; i++)); do
 		# The dev disk we're looking for should have an Apple_HFS label
-	    if [ ${DISKS_ARRAY[$i]} = "Apple_HFS" ]
-			then
-				# The actual dev disk string should be just before the Apple_HFS element in the array
-				DEV_DISK=${DISKS_ARRAY[$(($i-1))]}
+		if [ ${DISKS_ARRAY[$i]} = "Apple_HFS" ]; then
+			# The actual dev disk string should be just before the Apple_HFS element in the array
+			DEV_DISK=${DISKS_ARRAY[$(($i-1))]}
 		fi
 	done
 
@@ -76,10 +74,10 @@ echo "\n"
 date
 echo 'fixing plist...'
 cat "$BUNDLE/com.apple.TimeMachine.MachineID.plist" |
-  # change VerificationState to zero
-  awk 'BEGIN { RS = "" } { gsub(/VerificationState<\/key>[ \t\n]*<integer>2/, "VerificationState</key>\n\t<integer>0"); print }' |
-  # remove RecoveryBackupDeclinedDate and write to a temp file
-  awk 'BEGIN { RS = "" } { gsub(/[ \t\n]*<key>RecoveryBackupDeclinedDate<\/key>[ \t\n]*<date>[^<]+<\/date>/, ""); print }' > /tmp/fixed-plist.plist
+	# change VerificationState to zero
+	awk 'BEGIN { RS = "" } { gsub(/VerificationState<\/key>[ \t\n]*<integer>2/, "VerificationState</key>\n\t<integer>0"); print }' |
+	# remove RecoveryBackupDeclinedDate and write to a temp file
+	awk 'BEGIN { RS = "" } { gsub(/[ \t\n]*<key>RecoveryBackupDeclinedDate<\/key>[ \t\n]*<date>[^<]+<\/date>/, ""); print }' > /tmp/fixed-plist.plist
 
 # replace the original (don't use mv; it throws weird errors when moving across this disks)
 cp /tmp/fixed-plist.plist "$BUNDLE/com.apple.TimeMachine.MachineID.plist"
